@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/cookiejar"
-	"net/http/httputil"
 	"net/url"
 	"strings"
 	"time"
@@ -354,7 +353,6 @@ func (cli *Client) Login() (loginResponse *LoginResponse, err error) {
 	}
 
 	respBody, err := cli.DoRequest("POST", urlFindPatient, toJSON(loginPayload), "")
-	log.Printf("respBody - %s", respBody)
 
 	loginResponse = &LoginResponse{}
 	err = json.Unmarshal([]byte(respBody), loginResponse)
@@ -388,16 +386,12 @@ func (cli *Client) DoRequest(method string, url string, body string, query strin
 	if cli.savedCookie != nil {
 		req.AddCookie(cli.savedCookie)
 	}
-	reqBody, _ := httputil.DumpRequest(req, true)
-	log.Printf("req - %s", string(reqBody))
 
 	resp, err := cli.http.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
-	respdBody, _ := httputil.DumpResponse(resp, true)
-	log.Printf("resp - %s", string(respdBody))
 
 	doc, err := goquery.NewDocumentFromResponse(resp)
 	if err != nil {
